@@ -7,5 +7,4 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('bank/', views.bank, name='bank'),
-    path('admin/', admin.site.urls),
 ]

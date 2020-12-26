@@ -2,15 +2,17 @@ LINK: https://github.com/rrrkkk/cyberinsecurity
 This should run correctly in a computer with a standard course software
 installed (python3, django, etc). See the course page:
 https://cybersecuritybase.mooc.fi/installation-guide
+When using manage.py, it must be invoked with python3.
+The database in its original state is saved to db.sqlite3.original .
 
 FLAW 1:
-Injection on search/ page
+Injection on search page
 Use variable binding and filter the input received from user.
 
 FLAW 2:
 Broken authenticaton everywhere
-Session id is the same than user id, which is easily guessable
-Use proper session managenent framework instead of homebrewn one
+Session id is the same than user id, which is easily guessable.
+Use proper session managenent framework instead of homebrewn one.
 
 FLAW 3:
 Insufficient logging & monitoring
@@ -19,9 +21,10 @@ Needs to log at least the authentication and transactions.
 
 FLAW 4:
 Broken access control
-Using special undocumented parameter, user can bypass all restrictions.
-Corrected by removing the magic parameter and using proper role-based
-framework instead.
+Using special undocumented parameter, user can bypass restrictions on
+his/hers money transfers.
+Corrected by removing the magic parameter. If such a functionality is needed,
+implement appropriate rights to special accounts.
 
 FLAW 5:
 Sensitive data exposure

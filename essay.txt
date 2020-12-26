@@ -21,8 +21,8 @@ Needs to log at least the authentication and transactions.
 
 FLAW 4:
 Broken access control
-Using special undocumented parameter, user can bypass restrictions on
-his/hers money transfers.
+Using special undocumented parameter, user masquerade him/herself as another
+username.
 Corrected by removing the magic parameter. If such a functionality is needed,
 implement appropriate rights to special accounts.
 
@@ -31,5 +31,6 @@ Sensitive data exposure
 By leveraging flaws 1, 2, or 4 above, user can see any information
 stored in system, or, indeed, modify any data in any way.
 Also, passwords are stored unencrypted in the database.
+Also, login page reveals if username exists or not.
 Corrected by fixing the above flaws and encrypting and salting the passwords
 properly.

@@ -48,6 +48,7 @@ def login(request):
         data = {'message': 'Wrong password'}
         return render(request, 'login.html', data)
     # Qapla' !
+    # Sucess !
     return HttpResponseRedirect('/?id=' + str(account.id))
 
 def search(request):

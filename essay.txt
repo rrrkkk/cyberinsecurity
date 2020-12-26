@@ -1,37 +1,53 @@
 LINK: https://github.com/rrrkkk/cyberinsecurity
-This should run correctly in a computer with a standard course software
-installed (python3, django, etc). See the course page:
-https://cybersecuritybase.mooc.fi/installation-guide
+For installation of the infrastructure, see the course page: https://cybersecuritybase.mooc.fi/installation-guide
+This is a django project, with project name "honest" and one application, "bank".
+This should run correctly in a computer with a standard course software installed (python3, django, etc). What is really needed is python 3 and the pip stuff.
 When using manage.py, it must be invoked with python3.
-The database in its original state is saved to db.sqlite3.original .
+The database in its original state is saved to db.sqlite3.original . If database is changed, it can be restored by copying the aforementioned file over db.sqlite3.
+Server is started from commandline as usual:
+cd honest
+python3 manage.py runserver
+The application first authenticates the user. Valid user:password combinations are:
+root:root (this is, of course, especially BAD)
+bob:squarepants (to honor the course bank application)
+angel:wings
+demon:horns
+After authentication, the index page tells users' account balance. From the index page, there are two main functions available: Money transfer and search. In order to transfer money, the username of the recipient must be known (search comes to help here). For the transfer to succeed, the user must have enough balance.
+There are no provisions in the application for creating new users or to change existing passwords. These operations must be done at the database level, on the table bank_account. Said table is self-evident. id numbers less than zero cannot be used as they trigger negative authentication response.
 
 FLAW 1:
 Injection on search page
-Use variable binding and filter the input received from user.
+The user input is just catenated to raw SQL statement and output is just dumped out. This makes all kinds of injections trivial.
+Use variable binding and filter the input received from user. Use tools provided by django (e.g. .objects.filter(string__contains='pattern') instead of raw database tools used here)
 
 FLAW 2:
 Broken authentication everywhere
-Session id is the same than user id, which is easily guessable.
-Use proper session management framework instead of homebrewn one.
+Session id is the same than user id, which is easily guessable. Also, the id numbers are sequential staring from 0 which makes it really easy to guess the numbers. Moreover, the id is passed as GET parameter which makes it visual in URL fields. In addition, the software writer must use lots of effort to pass id field when needed.
+Use proper session management framework instead of homebrewn one. Move the access token to a cookie.
 
 FLAW 3:
 Insufficient logging & monitoring
-No provisions made to log anything.
-Needs to log at least the authentication and transactions.
+1. No provisions made to log anything, beyond what the web server might or might not log.
+2. There is no monitoring either for e.g. suspiciously large transactions, or any other means of monitoring the system beyond the standard user interface. Moreover, there are no provisions to log strange parameters or error conditions.
+To correct:
+1. Implement proper logging. Needs to log at least the authentication and transactions - both failed and successful ones. As the software currently stands, just logging all requests would be enough as everything of value is passed as a GET parameter. If this is done, see the FLAW 5 below however.
+2. To enable monitoring, start by implementing transaction limits per account and generate alarms if user tries to overstep the limits. Implement better logging on error conditions.
 
 FLAW 4:
 Broken access control
-Using special undocumented parameter, user can masquerade him/herself as
-another username.
-Corrected by removing the magic parameter. If such a functionality is needed,
-implement appropriate rights to special accounts.
+Using special undocumented parameter, user can masquerade him/herself as another username. This is actually rather unnecessary as guessing the session id is even more trivial.
+Corrected by removing the support for magic parameter. If such a functionality is needed, implement appropriate rights to special accounts. This would need a major rewrite of the software.
 
 FLAW 5:
 Sensitive data exposure
-By leveraging flaws 1, 2, or 4 above, user can see any information
-stored in system, or, indeed, modify any data in any way.
-Also, passwords are stored unencrypted in the database.
-Also, login page reveals if username exists or not.
-Also, search function allows for enumerating all users (search for %).
-Corrected by fixing the above flaws and encrypting and salting the passwords
-properly.
+1. By leveraging flaws 1, 2, or 4 above, user can see any information stored in system, or, indeed, modify any data in any way.
+2. Also, passwords are stored unencrypted in the database.
+3. Also, login page reveals if username exists or not.
+4. Also, search function allows for enumerating all users (search for %).
+5. If the web server hosting the application logs all requests, also plaintext passwords get logged as they are passed in the plain as GET parameters.
+Corrected by:
+1. Fixing the above mentioned flaws.
+2. Encrypt and salt the stored passwords properly. Even better, use tools provided by django (User framework) since they are in wide use and possible flaws tend to be spotted quickly.
+3. Rewrite login logic in such a way, that such information is not revealed. For example, in all of the three different errors, give out same generic error message (e.g. "Bad username/password combination"). Better still, use django login framework.
+4. Return only the first match to the search, with indication that there are more hits if this is the case. Alternatively show only N results, where N is suitably small figure in relation to size of user database. Limit single users' possibility to do searches so that enumerating all possible search patterns becomes impossible.
+5. Pass the passwords as POST parameters, or use more elaborate authentication schemes (e.g. 2FA). The latter requires more work but again django provides suitable framework for these.

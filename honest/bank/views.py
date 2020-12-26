@@ -69,3 +69,30 @@ def search_action(request):
     response = cursor.execute("SELECT username FROM bank_account WHERE username LIKE '" + username + "'").fetchall()
     data = {'account': Account.objects.get(id=id), 'response': response}
     return render(request, 'search_action.html', data)
+
+def transfer(request):
+    id = get_id(request)
+    if id < 0:
+        data = {'message': 'Please login'}
+        return render(request, 'login.html', data)
+    data = {'account': Account.objects.get(id=id)}
+    return render(request, 'transfer.html', data)
+
+def transfer_action(request):
+    id = get_id(request)
+    if id < 0:
+        data = {'message': 'Please login'}
+        return render(request, 'login.html', data)
+    username = request.GET['username']
+    amount = int(request.GET['amount'])
+    hisaccount = Account.objects.get(username=username)
+    myaccount = Account.objects.get(id=id)
+    status = 'failed'
+    if myaccount.balance >= amount:
+        myaccount.balance -= amount
+        hisaccount.balance += amount
+        myaccount.save()
+        hisaccount.save()
+        status = 'succeeded'
+    data = {'account': myaccount, 'status': status}
+    return render(request, 'transfer_action.html', data)

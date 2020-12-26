@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Honest Al's Trustrworthy Bank</title>
+    </head>
+    <body>
+        <h1>Honest Al's Trustrworthy Bank</h1>
+        <h2>Money transfer</h2>
+        <p>Username: {{account.username}}</p>
+        <p>Balance: {{account.balance}}</p>
+        <form action="/transfer_action/" method="get">
+            <input type="hidden" name="id" value="{{account.id}}">
+            Username of the receiver: <input type="text" name="username"><br>
+            Amount: <input type="number" name="amount"><br>
+            <input type="submit" value="Transfer">
+        </form>
+    </body>
+</html>

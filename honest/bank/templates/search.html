@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Honest Al's Trustrworthy Bank</title>
+    </head>
+    <body>
+        <h1>Honest Al's Trustrworthy Bank</h1>
+        <h2>Search users</h2>
+        <form action="/search_action/" method="get">
+            <input type="hidden" name="id" value="{{account.id}}">
+            Username (can contain SQL wildcards): <input type="text" name="username"><br>
+            <input type="submit" value="Search">
+        </form>
+    </body>
+</html>
